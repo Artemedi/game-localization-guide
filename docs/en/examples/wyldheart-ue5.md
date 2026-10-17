@@ -4,6 +4,8 @@
 
 The Steam demo of Wyldheart ships with en, de, fr, ja, ko, zh-Hans. No Russian. Below is how it was added as a **separate mod archive**, without modifying a single game file.
 
+> **Ready-made translation:** [release wyldheart-ru-v0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/wyldheart-ru-v0.1.0) — archive with an installer for Windows and Linux/Steam Deck. Unofficial, mostly machine-translated with manual fixes; targets the Steam demo buildid 25823320.
+
 ## 1. Reconnaissance
 
 | What | Value | How established |

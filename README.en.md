@@ -51,4 +51,4 @@ Labels: **[verified]** — confirmed in game on a real project; **[overview]** �
 
 ## License
 
-Guide texts — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Game and engine names belong to their owners; the guide contains none of their assets.
+Guide texts — [CC BY 4.0](LICENSE). Game and engine names belong to their owners; the guide contains none of their assets. Archives in [Releases](https://github.com/Artemedi/game-localization-guide/releases) are unofficial fan translations built from the game's text; they are not affiliated with the developers and are not covered by CC BY 4.0.
