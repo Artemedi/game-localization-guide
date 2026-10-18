@@ -7,7 +7,7 @@
 | Sign in the game folder | Engine | Document |
 |---|---|---|
 | `<Project>/Content/Paks/*.pak`, `*.utoc`, `*.ucas`; `Engine/`; `<Project>.exe` + `<Project>/Binaries/Win64/<Project>-Win64-Shipping.exe` | Unreal Engine 4/5 | [unreal-engine.md](unreal-engine.md) **[verified]** |
-| `<Game>_Data/`, `UnityPlayer.dll`, `globalgamemanagers`, `*.assets`, `StreamingAssets/` | Unity | [unity.md](unity.md) [overview] |
+| `<Game>_Data/`, `UnityPlayer.dll`, `globalgamemanagers`, `*.assets`, `StreamingAssets/` | Unity | [unity.md](unity.md) **[partly verified]** |
 | `*.pck` next to the `.exe` (or embedded in it), string `Godot Engine` in the binary | Godot | [godot.md](godot.md) [overview] |
 
 ## Decision tree

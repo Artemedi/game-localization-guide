@@ -2,7 +2,7 @@
 
 [← К оглавлению](../../README.md)
 
-Отмечено, что применялось в разобранном примере (✔) и что приведено для справки (·).
+Отмечено, что применялось в разобранных примерах (✔) и что приведено для справки (·).
 
 ## Unreal Engine
 
@@ -23,7 +23,11 @@
 | [AssetRipper](https://github.com/AssetRipper/AssetRipper) | извлечение ассетов, TextAsset, шрифтов | · |
 | [UABEA](https://github.com/nesrak1/UABEA) | просмотр/замена ассетов в `.assets` и бандлах | · |
 | [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) | структура классов IL2CPP-сборок | · |
-| [BepInEx](https://github.com/BepInEx/BepInEx) + [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) | загрузчик плагинов + runtime-подмена текста по словарю | · |
+| [BepInEx](https://github.com/BepInEx/BepInEx) 5 + [HarmonyX](https://github.com/BepInEx/HarmonyX) | загрузчик плагинов (Mono) и перехват методов игры: postfix/prefix/транспайлер | ✔ |
+| [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) | готовая runtime-подмена текста по словарю (плагин BepInEx) | · |
+| [UnityPy](https://github.com/K0lb3/UnityPy) | чтение `.assets` из Python: TextAsset, шрифты, сырые MonoBehaviour (поиск подписей без typetree) | ✔ |
+| [ILSpy](https://github.com/icsharpcode/ILSpy) (`ilspycmd`) | декомпиляция и IL сборок `Managed/*.dll`: кто читает текст и откуда | ✔ |
+| Roslyn `csc.dll` из .NET SDK | сборка плагина против `Managed/*.dll` игры без NuGet | ✔ |
 
 ## Godot
 

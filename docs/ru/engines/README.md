@@ -7,7 +7,7 @@
 | Признак в каталоге игры | Движок | Документ |
 |---|---|---|
 | `<Project>/Content/Paks/*.pak`, `*.utoc`, `*.ucas`; `Engine/`; `<Project>.exe` + `<Project>/Binaries/Win64/<Project>-Win64-Shipping.exe` | Unreal Engine 4/5 | [unreal-engine.md](unreal-engine.md) **[проверено]** |
-| `<Game>_Data/`, `UnityPlayer.dll`, `globalgamemanagers`, `*.assets`, `StreamingAssets/` | Unity | [unity.md](unity.md) [обзор] |
+| `<Game>_Data/`, `UnityPlayer.dll`, `globalgamemanagers`, `*.assets`, `StreamingAssets/` | Unity | [unity.md](unity.md) **[проверено частично]** |
 | `*.pck` рядом с `.exe` (или встроен в `.exe`), строка `Godot Engine` в бинарнике | Godot | [godot.md](godot.md) [обзор] |
 
 ## Дерево решений

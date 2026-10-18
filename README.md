@@ -19,24 +19,34 @@
 | 2. Определить движок и найти локализацию | [docs/ru/engines/](docs/ru/engines/README.md) |
 | 3. Инструменты | [docs/ru/tools.md](docs/ru/tools.md) |
 | 4. Конвейер перевода и проверки | [docs/ru/pipeline.md](docs/ru/pipeline.md) |
-| 5. Разобранный пример: Wyldheart (Unreal Engine 5.7) | [docs/ru/examples/wyldheart-ue5.md](docs/ru/examples/wyldheart-ue5.md) |
+| 5. Разобранные примеры: Wyldheart (Unreal Engine 5.7), Book of Travels (Unity 2022.3) | [wyldheart-ue5.md](docs/ru/examples/wyldheart-ue5.md), [bookoftravels-unity.md](docs/ru/examples/bookoftravels-unity.md) |
+| Как устроен репозиторий и релизы | [MANIFEST.md](MANIFEST.md) |
+
+## Готовые переводы
+
+| Игра | Движок | Способ | Платформы | Страница | Релиз |
+|---|---|---|---|---|---|
+| Wyldheart Demo | UE 5.7 | mod-архив `.pak` + пустые `.utoc/.ucas` | Windows, Linux/Steam Deck (Proton) | [пример](docs/ru/examples/wyldheart-ue5.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/wyldheart-ru-v0.1.0) |
+| Book of Travels | Unity 2022.3 (Mono) | плагин BepInEx | Linux/Steam Deck (нативная версия) | [пример](docs/ru/examples/bookoftravels-unity.md) | 0.1.0 |
 
 ## Структура репозитория
 
 ```
 README.md / README.en.md        ← эта страница
+MANIFEST.md / MANIFEST.en.md    ← что, где и в каком виде: страницы игр, релизы, состав архива
 docs/
   ru/ | en/
     overview.md                 ← общая механика локализации
     engines/
       README.md                 ← как определить движок
       unreal-engine.md          ← UE4/UE5: .locres/.locmeta, PAK + IoStore  [проверено]
-      unity.md                  ← Unity: где искать текст                    [обзор]
+      unity.md                  ← Unity: текст, runtime-плагин BepInEx, шрифты TMP  [проверено частично]
       godot.md                  ← Godot: .translation/.po в .pck             [обзор]
     tools.md                    ← инструменты по движкам
     pipeline.md                 ← канонический формат, проверки, сборка, тест в игре
     examples/
       wyldheart-ue5.md          ← полный пример с путями внутри файлов
+      bookoftravels-unity.md    ← Unity без выбора языка: перевод runtime-плагином
 ```
 
 Пометки: **[проверено]** — механизм подтверждён в игре на реальном проекте; **[обзор]** — общеизвестные сведения, в рамках этого руководства не проверялись.

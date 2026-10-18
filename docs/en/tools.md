@@ -2,7 +2,7 @@
 
 [← Contents](../../README.en.md)
 
-Marked: used in the worked example (✔) or listed for reference (·).
+Marked: used in the worked examples (✔) or listed for reference (·).
 
 ## Unreal Engine
 
@@ -23,7 +23,11 @@ Marked: used in the worked example (✔) or listed for reference (·).
 | [AssetRipper](https://github.com/AssetRipper/AssetRipper) | extract assets, TextAssets, fonts | · |
 | [UABEA](https://github.com/nesrak1/UABEA) | view/replace assets in `.assets` and bundles | · |
 | [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) | class structure of IL2CPP builds | · |
-| [BepInEx](https://github.com/BepInEx/BepInEx) + [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) | plugin loader + runtime text replacement from a dictionary | · |
+| [BepInEx](https://github.com/BepInEx/BepInEx) 5 + [HarmonyX](https://github.com/BepInEx/HarmonyX) | plugin loader (Mono) and hooking game methods: postfix/prefix/transpiler | ✔ |
+| [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) | ready-made runtime text replacement from a dictionary (BepInEx plugin) | · |
+| [UnityPy](https://github.com/K0lb3/UnityPy) | reading `.assets` from Python: TextAssets, fonts, raw MonoBehaviours (finding labels without a type tree) | ✔ |
+| [ILSpy](https://github.com/icsharpcode/ILSpy) (`ilspycmd`) | decompiling `Managed/*.dll` and reading IL: who reads the text and from where | ✔ |
+| Roslyn `csc.dll` from the .NET SDK | building the plugin against the game's `Managed/*.dll` without NuGet | ✔ |
 
 ## Godot
 

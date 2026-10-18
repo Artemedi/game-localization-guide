@@ -19,24 +19,34 @@ There are no ready-made translations or game assets here: only the mechanics, fi
 | 2. Identify the engine and find the localization | [docs/en/engines/](docs/en/engines/README.md) |
 | 3. Tools | [docs/en/tools.md](docs/en/tools.md) |
 | 4. Translation and verification pipeline | [docs/en/pipeline.md](docs/en/pipeline.md) |
-| 5. Worked example: Wyldheart (Unreal Engine 5.7) | [docs/en/examples/wyldheart-ue5.md](docs/en/examples/wyldheart-ue5.md) |
+| 5. Worked examples: Wyldheart (Unreal Engine 5.7), Book of Travels (Unity 2022.3) | [wyldheart-ue5.md](docs/en/examples/wyldheart-ue5.md), [bookoftravels-unity.md](docs/en/examples/bookoftravels-unity.md) |
+| How the repository and releases are organised | [MANIFEST.en.md](MANIFEST.en.md) |
+
+## Ready-made translations
+
+| Game | Engine | Method | Platforms | Page | Release |
+|---|---|---|---|---|---|
+| Wyldheart Demo | UE 5.7 | `.pak` mod archive + empty `.utoc/.ucas` | Windows, Linux/Steam Deck (Proton) | [example](docs/en/examples/wyldheart-ue5.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/wyldheart-ru-v0.1.0) |
+| Book of Travels | Unity 2022.3 (Mono) | BepInEx plugin | Linux/Steam Deck (native build) | [example](docs/en/examples/bookoftravels-unity.md) | 0.1.0 |
 
 ## Repository layout
 
 ```
 README.md / README.en.md        ← this page
+MANIFEST.md / MANIFEST.en.md    ← what goes where and in what form: game pages, releases, archive layout
 docs/
   ru/ | en/
     overview.md                 ← general localization mechanics
     engines/
       README.md                 ← how to identify the engine
       unreal-engine.md          ← UE4/UE5: .locres/.locmeta, PAK + IoStore  [verified]
-      unity.md                  ← Unity: where to look for text              [overview]
+      unity.md                  ← Unity: text, BepInEx runtime plugin, TMP fonts  [partly verified]
       godot.md                  ← Godot: .translation/.po inside .pck        [overview]
     tools.md                    ← tools per engine
     pipeline.md                 ← canonical format, checks, build, in-game test
     examples/
       wyldheart-ue5.md          ← full example with paths inside the archives
+      bookoftravels-unity.md    ← Unity without a language option: runtime plugin
 ```
 
 Labels: **[verified]** — confirmed in game on a real project; **[overview]** — commonly known information, not verified within this guide.
