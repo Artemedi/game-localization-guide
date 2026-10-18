@@ -39,6 +39,7 @@ Book of Travels has no language option: every text is English and lives inside `
 | R16 | fallback attached in the same `Awake`, before the first layout | **M4**: login screen in Russian |
 | R17–R18 | `ldstr` transpiler in 6 methods (strings built in code: "Скорость подсказок: 0.5 с") | **M4** |
 | R19 | transpiler: reagent name from `CharacterVariationsManager.ItemName` instead of the asset name | **M4**: "Одуванчик x2" |
+| R20 | the install package: `install.sh` adds BepInEx and the plugin, launched with the stock `./run_bepinex.sh %command%` | **M4**: translation visible, originals unchanged |
 
 Conclusions that cost the most time:
 - **Not all of a game's text is in its tables.** The CSVs covered most of it, but prefab labels, poems (CSV loader is editor-only), strings concatenated in code and asset names (`Chestnut shells x3`) each had to be caught at their own owner.
@@ -98,6 +99,7 @@ Glossary, translator instructions (formal "you" to the player, gender-neutral wo
 
 - The weather name in skill-unavailable reasons is an English enum name.
 - Nomad names (`NomadNames`) are not translated.
+- The item type subtitle in tooltips ("Reagent") is English.
 - "Играть без сет…" is cut off in its button; "Сбросить положение элементов интерфейса" does not fit.
 - Reagent costs on the skill card and the "not enough reagents" message are translated but not checked on screen.
 - `UnityEngine.UI.Text` (old labels, mostly debug) is not hooked.
