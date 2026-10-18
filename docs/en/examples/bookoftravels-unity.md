@@ -40,6 +40,7 @@ Book of Travels has no language option: every text is English and lives inside `
 | R17–R18 | `ldstr` transpiler in 6 methods (strings built in code: "Скорость подсказок: 0.5 с") | **M4** |
 | R19 | transpiler: reagent name from `CharacterVariationsManager.ItemName` instead of the asset name | **M4**: "Одуванчик x2" |
 | R20 | the install package: `install.sh` adds BepInEx and the plugin, launched with the stock `./run_bepinex.sh %command%` | **M4**: translation visible, originals unchanged |
+| R21 | transpiler: `enum.ToString()` in `EquipmentView.GetItemTypeText` goes through the method's literal table | **M4**: «Реагент», «Еда» in the item tooltip |
 
 Conclusions that cost the most time:
 - **Not all of a game's text is in its tables.** The CSVs covered most of it, but prefab labels, poems (CSV loader is editor-only), strings concatenated in code and asset names (`Chestnut shells x3`) each had to be caught at their own owner.
@@ -73,6 +74,7 @@ What the plugin does (every replacement matches the exact English source; if a g
 | NPC poems | prefix `NPC.ShowPoem(string, …)` |
 | NPC titles | prefix on the `NPC.NetworksyncNameSurface` setter: "Seasoned" + "Gate Warden" → «бывалый» + «привратный страж» (masc.) |
 | Strings built in code | transpiler: `ldstr` in listed methods; for async ones, in the state machine's `MoveNext` |
+| Item types | transpiler: the `enum.ToString()` result in `EquipmentView.GetItemTypeText` goes through the literal table |
 | Reagent names | transpiler: `Object.name` / `ReagentSubType.ToString()` → the item's display name |
 | Fonts | a fallback from `Ubuntu-R.ttf` for every `TMP_FontAsset`, scale matched by x-height |
 
@@ -99,7 +101,6 @@ Glossary, translator instructions (formal "you" to the player, gender-neutral wo
 
 - The weather name in skill-unavailable reasons is an English enum name.
 - Nomad names (`NomadNames`) are not translated.
-- The item type subtitle in tooltips ("Reagent") is English.
 - "Играть без сет…" is cut off in its button; "Сбросить положение элементов интерфейса" does not fit.
 - Reagent costs on the skill card and the "not enough reagents" message are translated but not checked on screen.
 - `UnityEngine.UI.Text` (old labels, mostly debug) is not hooked.
