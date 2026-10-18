@@ -12,44 +12,105 @@
 |---|---|---|
 | Движок | Unity **2022.3.62f2**, скриптовый рантайм **Mono** (`BookOfTravels_Data/Managed/*.dll`) | версия в `globalgamemanagers`, наличие `Managed/` |
 | Сборка | нативная Linux (`BookOfTravels.x86_64`), Steam appid 1152340, buildid 24468107; запускается в контейнере Steam Linux Runtime (pressure-vessel) | файлы игры, лог параметров запуска |
-| Где текст | 281 CSV-таблица (`TextAsset`) в `resources.assets`, колонки `English`, `English Title`, `English Description`, `English Feedback (Start/End)`… | инвентарь TextAsset (UnityPy) |
-| Кто читает CSV | один парсер `CSVReader.Read(TextAsset)` в `Years.General.Base.Assembly.dll` | декомпиляция (ILSpy) |
-| Выбор языка | нет; других языков нет | меню и CSV |
-| Подписи интерфейса | поле `m_text` компонентов TextMeshPro в сценах и префабах (641 уникальная строка) — вне CSV | разбор MonoBehaviour |
-| Стихи NPC | вшиты в `CharacterVariationsManager` (`PoemData`); CSV-загрузчик стихов вызывается только из редактора | декомпиляция + R10 |
-| Звания NPC | собираются кодом: «характеристика + профессия» или имя enum (`Peasant`, `SahBasir`) | декомпиляция `NPC` |
-| Шрифты | TMP-атласы Traveler-pt234, HighTower-pt169 — без кириллицы; в ассетах игры есть `Ubuntu-R.ttf` (с кириллицей) | инвентарь `TMP_FontAsset`, R2 |
+| Контейнеры | обычные сериализованные файлы Unity (`resources.assets`, `sharedassets*.assets`, `levelN`), без бандлов и Addressables; без typetree | UnityPy |
+| Выбор языка | нет. Поле `chosenLanguage` загрузчика строк нигде не присваивается; кроме `English` других языковых колонок нет | декомпиляция, CSV |
 
-## 2. Эксперименты (по одной переменной)
+## 2. Данные и инструменты
 
-| Запуск | Что изменено | Результат |
+### 2.1 Инструменты
+
+| Инструмент | Версия | Для чего |
 |---|---|---|
-| R0 | staging без изменений | игра работает из staging |
-| R1 | копия `resources.assets`, одна строка CSV → ASCII-маркер | **M4**: маркер в окне выхода — путь текста доказан |
-| R2 | тот же маркер кириллицей | **M5**: буквы пропали, 125× «character … was not found» — шрифты без кириллицы |
-| R3 | BepInEx: doorstop в `LD_PRELOAD` снаружи цепочки Steam | **M0**: игра не стартует — pressure-vessel собирает свой `LD_PRELOAD` |
-| R4 | doorstop включается внутри контейнера, перед exe игры | BepInEx загружен, 0 плагинов |
-| R5 | плагин: динамический fallback-шрифт из `Ubuntu-R.ttf` для всех `TMP_FontAsset` | **M4**: кириллица видна (Ё, Ж, Щ, Ъ) |
-| R6 | оригинальный `resources.assets`; postfix на `CSVReader.Read(TextAsset)` подменяет поле по ID | **M4**: перевод без изменения ассетов |
-| R7–R8 | формат `translations.tsv`; звания NPC: prefix на сеттер `NPC.NetworksyncNameSurface` с согласованием рода | **M4** |
-| R9–R10 | полный машинный перевод CSV (18 тыс. строк), уведомления эффектов | **M4**; найдено, что стихи и подписи префабов из CSV не берутся |
-| R11–R13 | prefix на `NPC.ShowPoem`: словарь стихов по исходнику без метки времени; вшитые стихи без CSV | **M3** → **M4** |
-| R14 | отдельный fallback на каждый шрифт игры, `faceInfo.scale` по x-height | **M4**: текст больше не налезает |
-| R15 | postfix на `TextMeshProUGUI/TextMeshPro.Awake`: подписи префабов по точному исходнику | **M3**: экран входа пустой (2957 «replaced by  ») |
-| R16 | fallback подключается в том же `Awake`, до первой разметки | **M4**: экран входа по-русски |
-| R17–R18 | транспайлер `ldstr` в 6 методах (строки, собранные кодом: «Скорость подсказок: 0.5 с») | **M4** |
-| R19 | транспайлер: имя реагента из `CharacterVariationsManager.ItemName` вместо имени ассета | **M4**: «Одуванчик x2» |
-| R20 | установочный архив: BepInEx и плагин ставит `install.sh`, запуск — штатный `./run_bepinex.sh %command%` | **M4**: перевод виден, оригиналы не изменились |
-| R21 | транспайлер: `enum.ToString()` в `EquipmentView.GetItemTypeText` проходит через таблицу литералов метода | **M4**: «Реагент», «Еда» в подсказке предмета |
+| UnityPy | 1.25.4 (`uv venv`) | чтение `.assets`: инвентарь TextAsset и шрифтов, сырые MonoBehaviour, извлечение TTF; копия `resources.assets` для PoC R1–R2 |
+| ilspycmd | `DOTNET_ROLL_FORWARD=Major` | декомпиляция `Managed/*.dll` (`-p` проект, `-il` IL): кто читает текст, где он склеивается |
+| `strings` (binutils) | — | точные имена методов из метаданных сборки (ILSpy их экранирует) |
+| BepInEx | 5.4.23.5 linux x64 (UnityDoorstop, HarmonyX, MonoMod, Cecil) | загрузчик плагина, перехваты Harmony |
+| Roslyn `csc.dll` | из .NET SDK | сборка плагина без NuGet: `-langversion:7.3 -deterministic`, `-r:` на `Managed/*.dll` игры и `BepInEx/core/*.dll` |
+| Claude Opus 5.5 | через Wello API | машинный перевод (`tools/l10n_mt.py`, `tools/npc_titles.py translate`) |
+| inotify, `sha256sum` | — | наблюдение за открытием файлов, сверка оригинала |
+| свои скрипты | репозиторий `bookoftravels-ru/tools/` | `inventory_textassets.py`, `inventory_fonts.py`, `extract_texts.py`, `extract_ui_text.py`, `extract_baked_poems.py`, `npc_titles.py`, `export_translations.py`, `make_poc.py`, `build_plugin.sh`, `build_dist.sh`, `watch_open.py`, `observe_run.sh` |
+
+### 2.2 Распаковка
+
+На диск ничего не распаковывалось: скрипты читают `.assets` через UnityPy только на чтение и сразу пишут канонический JSON. `DATA` — `BookOfTravels_Data` (бралась staging-копия).
+
+```bash
+.venv/bin/python -I tools/inventory_textassets.py DATA research/stage0/textassets.tsv   # 293 TextAsset: файл, path_id, имя, размер, sha256
+.venv/bin/python -I tools/inventory_fonts.py DATA                                        # TMP_FontAsset → research/stage0/fonts.tsv
+.venv/bin/python -I tools/extract_texts.py translation/ru DATA/resources.assets DATA/sharedassets33.assets
+.venv/bin/python -I tools/extract_ui_text.py DATA                                        # → translation/ru/UI - Prefab Text.json
+.venv/bin/python -I tools/extract_baked_poems.py DATA/resources.assets                   # → CharacterVariationsManager - PoemData.json
+python3 -I tools/npc_titles.py build                                                     # → translation/ru/npc_titles.json
+DOTNET_ROLL_FORWARD=Major ilspycmd -p -r DATA/Managed -o decomp/General DATA/Managed/Years.General.General.Assembly.dll
+strings DATA/Managed/Years.General.General.Assembly.dll | grep 'Item\[\]'                # настоящее имя метода для Harmony
+```
+
+### 2.3 Где лежит текст
+
+| Текст | Контейнер | Объект | Формат и поле | Пример |
+|---|---|---|---|---|
+| Таблицы игры (основной объём) | `resources.assets` — 285 TextAsset; `sharedassets33.assets` — 8 (титры) | TextAsset по имени, напр. `GUI Copy - InfoPrompt`, path_id 4791, 14 040 байт | `m_Script`: CSV в UTF-8, первая строка — заголовок. 56 таблиц с колонкой `English` | заголовок `ID,English,Note`; строка `INFPR_00221,Are you sure you want to exit the game?,` |
+| Подписи интерфейса | `resources.assets`, `sharedassets*.assets`, `levelN` | MonoBehaviour `TextMeshProUGUI`, `TextMeshPro`, `UnityEngine.UI.Text` — 2144 компонента, 641 уникальный текст | `m_text` (TMP) / `m_Text` (UI.Text), читается по позиции сериализации (см. ниже) | «Settings», «Exit game», «Cost: » |
+| Стихи NPC (показываемые) | `resources.assets` | MonoBehaviour `CharacterVariationsManager`, 12 объектов с `[/P]` (path_id 98037, 99129, 100400, 98228, …; до 270 КБ) | `List<PoemData{string poem; int poemTag}>`, без typetree; распознаётся по форме «строка + int32 0..3» | `Ah... Yes...[XX]You are so very much more apparent to me now, mortal.…` |
+| Стихи NPC (CSV) | `resources.assets` | TextAsset `ClassPoems - *`, `GossipPoems - *`, `WalkByPoems - *`, `OtherPoems - *`, `CustomPoems - *` (66 таблиц) | колонки `Common/Uncommon/Rare/Unique`, `Poem`; метка времени `[E]/[M]/[N]`, разметка `[P]`, `[XX]` | загрузчик `LoadPoems` вызывается только из редактора — в игре эти CSV не читаются, служат словарём для вшитых стихов |
+| Звания NPC | `resources.assets` | TextAsset `NpcNames - Characteristics`, `NpcNames - Occupation - <Профессия>` (+ `- Neutral`); MonoBehaviour `npcNameOverrides`; enum типов NPC в `Years.General.Base.Assembly.dll` | сервер собирает `Characteristic + " " + Occupation` или имя enum, хранит в `NPC.syncNameSurface`, в сохранении — `SNS:<title>` | `Seasoned Gate Warden`, `Peasant`, `Commoner` |
+| Строки из кода | `Managed/Years.General.General.Assembly.dll` | 7 методов, напр. `UISettings.SetTooltipSpeed`, `EquipmentView.GetItemTypeText` | IL `ldstr`; для типов предметов — `constrained. ItemType; callvirt Object::ToString` (IL_0156) | `"Tool tip speed: " + v + " sec"`; `Reagent`, `Edible` |
+| Имена реагентов | assets | имя ассета предмета (`Object.name`), enum `ReagentSubType` | код выводит имя ассета вместо названия из таблицы | `Chestnut shells x3` при переведённом `REAG_00002` |
+| Шрифты | `resources.assets` | TMP_FontAsset `Traveler-pt234` (path_id 92861), `HighTower-pt169` (92860), `LiberationSans SDF` (99861); Font `Ubuntu-R` (11533) | TMP — статический атлас 1024², кириллицы нет; `Ubuntu-R` — TTF с полной кириллицей | R2: 125× «character … was not found» |
+
+Правила разбора CSV — как у игры, `CSVReader.Read(TextAsset)` в `Years.General.Base.Assembly.dll`:
+- строки делятся по `\r\n|\n\r|\n|\r`, поля — по `,(?=(?:[^"]*"[^"]*")*(?![^"]*"))`;
+- у значения обрезаются `"`, удаляются `\`; строка с пустым первым полем пропускается; значение, которое принимает `int/float.TryParse`, становится числом (не переводится);
+- `[X]` в тексте — перенос строки.
+
+Загрузка: `CharacterVariationsManager.Awake()` → `LoadGUICopy`, `LoadItemNames`, … → `CSVReader.Read` → `List<Dictionary<string, object>>`. Поэтому `source` в переводе — значение после разбора, а не сырая строка CSV.
+
+Подписи интерфейса без typetree: заголовок MonoBehaviour (`m_GameObject`, `m_Enabled`, `m_Script`, `m_Name` со смещения 28), затем Graphic (`m_Material` 12, `m_Color` 16, `m_RaycastTarget` 4, `m_RaycastPadding` 16), MaskableGraphic (`m_Maskable` 4, `m_OnCullStateChanged` — число вызовов обязано быть 0), затем `TMP_Text.m_text` или 56 байт `m_FontData` и `UI.Text.m_Text`. Класс компонента — по MonoScript из `globalgamemanagers.assets`. Компонент, не подходящий под раскладку, пропускается и считается.
+
+### 2.4 Редактирование и сборка
+
+Канонический формат — `translation/ru/<asset>.json`, один файл на таблицу:
+
+```json
+{"asset": "GUI Copy - InfoPrompt", "file": "resources.assets", "id_column": "ID",
+ "entries": [{"key": "INFPR_00001|English", "id": "INFPR_00001", "column": "English",
+              "source": "You cannot discard favourite items",
+              "translation": "Вы не можете выбросить любимые предметы",
+              "note": "mt:claude-opus-5.5-stable"}]}
+```
+
+- Тот же формат у `UI - Prefab Text.json` (колонка `UIText`), `CharacterVariationsManager - PoemData.json` (`PoemData`) и `Code - UI literals.json` (колонка `Type.Method`, ключ `#n|Type.Method`; составлен вручную по декомпиляции).
+- `npc_titles.json`: прилагательные — формы `m/f/n/pl` и позиция `pre/post`, существительные — с родом.
+- Извлечение повторяемо: при неизменном `(key, source)` перевод и `note` сохраняются. Машинные строки — `note: mt:…`, ручные правки — без `mt:`.
+- Сборка: `tools/export_translations.py` → `translations.tsv` (`asset, column, id, source, translation`; `\\ \t \n \r` экранируются), `tools/npc_titles.py export` → `npc_titles.tsv`, `tools/build_plugin.sh` → `BookOfTravels.RuFont.dll` + `Ubuntu-R.ttf` (извлекается из `resources.assets`), `tools/build_dist.sh VERSION` → архив.
+- Ассеты не редактировались. Исключение — PoC R1–R2: `tools/make_poc.py` менял одну строку CSV в **копии** `resources.assets` в staging и проверял, что изменился только этот объект (пересохранение UnityPy меняет ещё поле размера в заголовке, смещение 28, и 4 байта выравнивания).
+
+### 2.5 Захват и проверка (Linux/Steam)
+
+- Staging (`tools/build_staging.sh`): симлинки на файлы игры; настоящие копии — исполняемые файлы, `UnityPlayer.so` и `resources.assets` (Unity выводит путь `*_Data` из пути exe).
+- Параметр запуска Steam: `…/tools/steam-staging-wrapper.sh %command%` — переписывает путь exe на staging, пишет `logs/launch-*.log`. Если в staging есть `run_bepinex.sh`, обёртка запускает его — как у игрока.
+- `tools/observe_run.sh RN` перед запуском: inotify (`watch_open.py`) на каталоги оригинала и staging, копия `Player.log` и `BepInEx/LogOutput.log`, после выхода — sha256 202 ключевых файлов оригинала.
+- Доказательство прогона: в launch-логе `rewritten_args ≥ 1`; путь Mono в `Player.log` — staging; 0 «Unicode value … not found»; строки плагина («patched …», «translated N rows in '…'»); оригинальный `resources.assets` не открывался; CLOSE_WRITE 0; baseline ALL-OK; скриншот или подтверждение пользователя.
+
+## 3. Эксперименты
+
+| Запуски | Что проверялось | Результат |
+|---|---|---|
+| R0–R2 | путь текста: строка в копии `resources.assets` — ASCII, затем кириллица | **M4** маркер виден; **M5** кириллицы нет в шрифтах |
+| R3–R5 | загрузка BepInEx в контейнере Steam; fallback-шрифт из `Ubuntu-R.ttf` | **M0** с `LD_PRELOAD` снаружи → загрузка внутри контейнера → **M4** кириллица |
+| R6–R10 | перевод без изменения ассетов: postfix `CSVReader.Read`, звания NPC, полный машинный перевод | **M4**; стихи и подписи префабов не из CSV |
+| R11–R16 | стихи (`NPC.ShowPoem`), подписи префабов, шрифт до первой разметки | **M3** → **M4** |
+| R17–R21 | строки из кода, имена реагентов, типы предметов; архив с установщиком | **M4** |
+
+Полный журнал прогонов с доказательствами — README репозитория перевода.
 
 Выводы, которые стоили больше всего времени:
-- **Не весь текст игры — в её таблицах.** CSV покрыли большую часть, но подписи префабов, стихи (загрузчик CSV только в редакторе), строки, склеенные в коде, и имена ассетов (`Chestnut shells x3`) пришлось ловить отдельно, каждое у своего владельца.
-- **TextMeshPro запоминает пробелы вместо отсутствующих глифов.** Fallback, подключённый после первой разметки, уже не помогает: экран входа строится раньше, чем загружается сцена с плагином. Подключать — в `Awake` компонента.
-- **Linux + Steam: `LD_PRELOAD` снаружи контейнера теряется.** Штатный `run_bepinex.sh %command%` перезапускает себя внутри контейнера прямо перед exe игры — так и нужно.
-- **Имена методов — из метаданных, а не из декомпилятора.** ILSpy экранирует `[]` как `_005B_005D`; Harmony такой метод не найдёт.
-- **Отсутствие текста на экране — тоже факт.** Итог обмена с NPC игра собирает на сервере, а клиент его не показывает; переводить нечего.
+- **Не весь текст — в таблицах.** Подписи префабов, вшитые стихи, строки из кода и имена ассетов пришлось ловить отдельно, каждое у своего владельца.
+- **TextMeshPro запоминает пробелы вместо отсутствующих глифов.** Fallback нужно подключать в `Awake` компонента, до первой разметки.
+- **Linux + Steam: `LD_PRELOAD` снаружи контейнера теряется.** Работает штатный `./run_bepinex.sh %command%`.
+- **Имена методов — из метаданных, не из декомпилятора** (`_005B_005D` вместо `[]`).
 
-## 3. Итоговый мод
+## 4. Итоговый мод
 
 ```
 Book of Travels/                       (каталог игры в Steam)
@@ -78,7 +139,7 @@ Book of Travels/                       (каталог игры в Steam)
 | Имена реагентов | транспайлер: `Object.name` / `ReagentSubType.ToString()` → отображаемое имя предмета |
 | Шрифты | fallback из `Ubuntu-R.ttf` на каждый `TMP_FontAsset`, масштаб выровнен по x-height |
 
-## 4. Перевод
+## 5. Перевод
 
 | Область | Объём | Как |
 |---|---|---|
@@ -89,13 +150,6 @@ Book of Travels/                       (каталог игры в Steam)
 | Строки из кода | 18 литералов в 6 методах | вручную, с учётом склейки (`" sec"` → `" с"`) |
 
 Глоссарий, инструкции переводчику («вы» к игроку, нейтральный род), автопроверка разметки и числа `\t\n\r`. Все машинные строки помечены `mt:` для вычитки.
-
-## 5. Проверка без риска для установки (Linux/Steam)
-
-- Staging: симлинки на файлы игры; копии — только исполняемые файлы, `UnityPlayer.so` и `resources.assets` (Unity выводит путь `*_Data` из пути exe).
-- Параметр запуска Steam — обёртка, которая переписывает путь к exe на staging и пишет лог argv. Для проверки архива обёртка запускает установленный в staging `./run_bepinex.sh` так же, как Steam у игрока.
-- Наблюдение: inotify на каталоги оригинала и staging (открыт ли оригинальный `resources.assets`, есть ли запись), лог BepInEx, `Player.log` (счётчик «Unicode value … not found»).
-- После каждого запуска — sha256 202 ключевых файлов оригинала.
 
 ## 6. Известные ограничения
 

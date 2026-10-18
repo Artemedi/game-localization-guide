@@ -34,18 +34,25 @@ docs/<lang>/                      ru and en, identical file sets
 
 ## 3. Game page: `docs/<lang>/examples/<game>-<engine>.md`
 
+The page is a technical report: tables, paths, commands, offsets. Prose only where the reason is unclear without it; no more than a couple of sentences in a row.
+
 Required sections, in this order:
 
 0. **Header**: links to the contents and to the engine page; one sentence on which languages are missing and how Russian was added.
    A "**Ready-made translation:**" block — link to the release, installer platforms, translation quality, game version (Steam buildid).
-1. **Reconnaissance** — table "What | Value | How established": engine and version, runtime, containers, where the text lives, whether there is a language option.
-2. **Experiments** — table "Run | What changed | Result" with M0–M5 codes; then the conclusions that cost the most time.
-3. **Final mod** — tree of the files added to the game directory and what each does.
-4. **Translation** — volume, method (manual / LLM, model), what stayed English and why, fixes from screenshots.
-5. **Risk-free verification** — staging, launch wrapper, observation, hash checks.
+1. **Reconnaissance** — table "What | Value | How established": engine and version, runtime, containers, whether there is a language option.
+2. **Data and tools** — the main section of the page: where the data came from and how. Subsections:
+   1. **Tools** — table "Tool | Version | Used for". Only what was actually used; own scripts named by their file in the game's repository.
+   2. **Unpacking** — commands (paths as `<game>/…`), where things were extracted, what was read from them; tool pitfalls (e.g. extracting next to the original).
+   3. **Where the text lives** — a table row per text source: "Text | Container | Object / inner path | Format and field | Example". Down to the identifier: archive path, `path_id`, asset name, namespace/key, column, offset — whatever applies. The example is a real key and source string. Then the format layout or parsing rules, if they had to be reconstructed (fields, hashes, encoding).
+   4. **Editing and building** — the canonical translation format (schema of one entry), what builds it and into what; what was edited by hand and what was generated. Extracted originals are never edited.
+   5. **Capture and verification** — how runs were observed: staging, wrapper, inotify, game/loader logs, screenshots, hash checks; which signs counted as proof.
+3. **Experiments** — brief: table "Runs | What was tested | Result", groups of runs on one row, M0–M5 codes, at most ~8 rows. The full log lives in the game's repository. Then 3–5 conclusions that cost the most time.
+4. **Final mod** — tree of the files added to the game directory and what each does.
+5. **Translation** — volume, method (manual / LLM, model), what stayed English and why, fixes from screenshots.
 6. **Known limitations** — what does not work or was not verified.
 
-Facts only when confirmed by a run or by files; conclusions from code and hypotheses are labelled as such. A line missing from a log is not proof.
+Facts only when confirmed by a run or by files; conclusions from code and hypotheses are labelled as such. A line missing from a log is not proof. API keys, personal paths and logs containing them never go on the page.
 When a game confirms an engine mechanism, update `engines/<engine>.md` (label `[verified: <game>]`) and `tools.md` (✔), and add the game to the tables in `README.md`/`README.en.md`.
 
 ## 4. Translation releases
