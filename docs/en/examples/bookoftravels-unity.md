@@ -59,7 +59,7 @@ Book of Travels/                       (game folder in Steam)
     ├── core/                          ← BepInEx 5.4.23.5 (HarmonyX, MonoMod, Cecil)
     └── plugins/RuFont/
         ├── BookOfTravels.RuFont.dll   ← translation plugin
-        ├── translations.tsv           ← asset, column, id, source, translation (19,074 rows)
+        ├── translations.tsv           ← asset, column, id, source, translation (19,076 rows)
         ├── npc_titles.tsv             ← NPC title parts with gender forms (1,301 rows)
         ├── Ubuntu-R.ttf               ← fallback font (the same file the game ships in its assets)
         └── installed-files.txt        ← list used by uninstall.sh

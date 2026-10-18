@@ -59,7 +59,7 @@ Book of Travels/                       (каталог игры в Steam)
     ├── core/                          ← BepInEx 5.4.23.5 (HarmonyX, MonoMod, Cecil)
     └── plugins/RuFont/
         ├── BookOfTravels.RuFont.dll   ← плагин перевода
-        ├── translations.tsv           ← asset, column, id, source, translation (19 074 строки)
+        ├── translations.tsv           ← asset, column, id, source, translation (19 076 строк)
         ├── npc_titles.tsv             ← части званий NPC с формами рода (1301 строка)
         ├── Ubuntu-R.ttf               ← шрифт для fallback (тот же файл, что в ассетах игры)
         └── installed-files.txt        ← список, по которому работает uninstall.sh
