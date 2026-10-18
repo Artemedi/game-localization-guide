@@ -27,7 +27,7 @@ There are no ready-made translations or game assets here: only the mechanics, fi
 | Game | Engine | Method | Platforms | Page | Release |
 |---|---|---|---|---|---|
 | Wyldheart Demo | UE 5.7 | `.pak` mod archive + empty `.utoc/.ucas` | Windows, Linux/Steam Deck (Proton) | [example](docs/en/examples/wyldheart-ue5.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/wyldheart-ru-v0.1.0) |
-| Book of Travels | Unity 2022.3 (Mono) | BepInEx plugin | Linux/Steam Deck (native build) | [example](docs/en/examples/bookoftravels-unity.md) | 0.1.0 |
+| Book of Travels | Unity 2022.3 (Mono) | BepInEx plugin | Linux/Steam Deck (native build) | [example](docs/en/examples/bookoftravels-unity.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.1.0) |
 
 ## Repository layout
 

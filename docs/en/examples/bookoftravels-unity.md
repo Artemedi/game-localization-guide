@@ -4,7 +4,7 @@
 
 Book of Travels has no language option: every text is English and lives inside `resources.assets`, and the UI fonts have no Cyrillic. Russian was added with a **BepInEx plugin** that replaces texts and attaches a font while the game runs. No game file is modified.
 
-> **Ready-made translation:** release bookoftravels-ru-v0.1.0 — archive with an installer for Linux / Steam Deck (native build). Unofficial, mostly machine-translated and spot-checked; targets Steam buildid 24468107. The Windows build is not supported by this release.
+> **Ready-made translation:** [release bookoftravels-ru-v0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.1.0) — archive with an installer for Linux / Steam Deck (native build). Unofficial, mostly machine-translated and spot-checked; targets Steam buildid 24468107. The Windows build is not supported by this release.
 
 ## 1. Reconnaissance
 
