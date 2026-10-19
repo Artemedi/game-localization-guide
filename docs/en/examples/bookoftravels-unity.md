@@ -4,14 +4,14 @@
 
 Book of Travels has no language option: every text is English and lives inside `resources.assets`, and the UI fonts have no Cyrillic. Russian was added with a **BepInEx plugin** that replaces texts and attaches a font while the game runs. No game file is modified.
 
-> **Ready-made translation:** [release bookoftravels-ru-v0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.1.0) — archive with an installer for Linux / Steam Deck (native build). Unofficial, mostly machine-translated and spot-checked; targets Steam buildid 24468107. The Windows build is not supported by this release.
+> **Ready-made translation:** [release bookoftravels-ru-v0.2.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.2.0) — archive with installers for Windows (`install.bat`) and Linux / Steam Deck (`install.sh`: native build or the Windows build via Proton). Unofficial, mostly machine-translated and spot-checked; targets Steam buildid 24468107. Verified in game: native Linux and the Windows build via Proton; not native Windows or Steam Deck.
 
 ## 1. Reconnaissance
 
 | What | Value | How established |
 |---|---|---|
 | Engine | Unity **2022.3.62f2**, **Mono** scripting runtime (`BookOfTravels_Data/Managed/*.dll`) | version in `globalgamemanagers`, `Managed/` present |
-| Build | native Linux (`BookOfTravels.x86_64`), Steam appid 1152340, buildid 24468107; runs inside the Steam Linux Runtime container (pressure-vessel) | game files, launch argv log |
+| Build | native Linux (`BookOfTravels.x86_64`), Steam appid 1152340, buildid 24468107; runs inside the Steam Linux Runtime container (pressure-vessel). Windows build (`BookOfTravels.exe`, same buildid): texts in `resources.assets` and hook targets in `Managed/*.dll` match the Linux build (file and IL comparison) | game files, launch argv log |
 | Containers | plain Unity serialized files (`resources.assets`, `sharedassets*.assets`, `levelN`), no bundles or Addressables; no type tree | UnityPy |
 | Language option | none. The string loader's `chosenLanguage` field is never assigned; no language column other than `English` | decompilation, CSV |
 
@@ -90,6 +90,7 @@ Canonical format — `translation/ru/<asset>.json`, one file per table:
 - Staging (`tools/build_staging.sh`): symlinks to the game files; real copies only of the executables, `UnityPlayer.so` and `resources.assets` (Unity derives the `*_Data` path from the exe path).
 - Steam launch option: `…/tools/steam-staging-wrapper.sh %command%` — rewrites the exe path to staging, writes `logs/launch-*.log`. If staging has a `run_bepinex.sh`, the wrapper runs it — as a player's Steam would.
 - `tools/observe_run.sh RN` before launch: inotify (`watch_open.py`) on the original and staging dirs, copies of `Player.log` and `BepInEx/LogOutput.log`, and after exit sha256 of 202 key files of the original.
+- Windows build via Proton (R22–R23): staging copies `BookOfTravels.exe`, `UnityPlayer.dll`, `UnityCrashHandler*.exe` and the launcher; launch option `WINEDLLOVERRIDES="winhttp=n,b" …/steam-staging-wrapper.sh %command%`; `Player.log` is in the Wine prefix `compatdata/1152340/pfx/drive_c/users/steamuser/AppData/LocalLow/MightAndDelight/`; baseline — 369 key files.
 - Proof of a run: `rewritten_args ≥ 1` in the launch log; Mono path in `Player.log` is staging; 0 "Unicode value … not found"; plugin lines ("patched …", "translated N rows in '…'"); the original `resources.assets` not opened; CLOSE_WRITE 0; baseline ALL-OK; a screenshot or the user's confirmation.
 
 ## 3. Experiments
@@ -101,6 +102,7 @@ Canonical format — `translation/ru/<asset>.json`, one file per table:
 | R6–R10 | translation without touching assets: postfix `CSVReader.Read`, NPC titles, full machine translation | **M4**; poems and prefab labels do not come from the CSV |
 | R11–R16 | poems (`NPC.ShowPoem`), prefab labels, font before the first layout | **M3** → **M4** |
 | R17–R21 | strings in code, reagent names, item types; the archive with the installer | **M4** |
+| R22–R23 | the same archive in the Windows build via Proton (`winhttp.dll`) | **M0** without `WINEDLLOVERRIDES` → **M4** |
 
 The full run log with evidence is in the translation repository's README.
 
@@ -108,14 +110,16 @@ Conclusions that cost the most time:
 - **Not all text is in the tables.** Prefab labels, baked poems, strings in code and asset names each had to be caught at their own owner.
 - **TextMeshPro keeps spaces in place of missing glyphs.** Attach the fallback in the component's `Awake`, before the first layout.
 - **Linux + Steam: `LD_PRELOAD` set outside the container is lost.** The stock `./run_bepinex.sh %command%` works.
+- **Proton: without `WINEDLLOVERRIDES="winhttp=n,b"` Wine uses its own `winhttp.dll`**, and BepInEx does not load, with no error in any log (R22).
 - **Method names from metadata, not from the decompiler** (`_005B_005D` instead of `[]`).
 
 ## 4. Final mod
 
 ```
 Book of Travels/                       (game folder in Steam)
-├── run_bepinex.sh                     ← Steam launch option: ./run_bepinex.sh %command%
-├── libdoorstop.so, .doorstop_version  ← UnityDoorstop: loads BepInEx before the game code
+├── run_bepinex.sh                     ← Linux: Steam launch option ./run_bepinex.sh %command%
+├── libdoorstop.so, .doorstop_version  ← UnityDoorstop (Linux): loads BepInEx before the game code
+├── winhttp.dll, doorstop_config.ini   ← UnityDoorstop (Windows); under Proton: WINEDLLOVERRIDES="winhttp=n,b" %command%
 └── BepInEx/
     ├── core/                          ← BepInEx 5.4.23.5 (HarmonyX, MonoMod, Cecil)
     └── plugins/RuFont/
@@ -158,4 +162,4 @@ Glossary, translator instructions (formal "you" to the player, gender-neutral wo
 - "Играть без сет…" is cut off in its button; "Сбросить положение элементов интерфейса" does not fit.
 - Reagent costs on the skill card and the "not enough reagents" message are translated but not checked on screen.
 - `UnityEngine.UI.Text` (old labels, mostly debug) is not hooked.
-- The Windows build and Proton were not tested.
+- Native Windows and Steam Deck were not tested in game; `install.ps1`/`uninstall.ps1` were tested on fake directories only (PowerShell 7 on Linux).

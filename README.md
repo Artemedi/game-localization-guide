@@ -27,7 +27,7 @@
 | Игра | Движок | Способ | Платформы | Страница | Релиз |
 |---|---|---|---|---|---|
 | Wyldheart Demo | UE 5.7 | mod-архив `.pak` + пустые `.utoc/.ucas` | Windows, Linux/Steam Deck (Proton) | [пример](docs/ru/examples/wyldheart-ue5.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/wyldheart-ru-v0.1.0) |
-| Book of Travels | Unity 2022.3 (Mono) | плагин BepInEx | Linux/Steam Deck (нативная версия) | [пример](docs/ru/examples/bookoftravels-unity.md) | [0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.1.0) |
+| Book of Travels | Unity 2022.3 (Mono) | плагин BepInEx | Windows, Linux/Steam Deck (нативная и Proton) | [пример](docs/ru/examples/bookoftravels-unity.md) | [0.2.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.2.0) |
 
 ## Структура репозитория
 

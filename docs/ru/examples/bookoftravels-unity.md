@@ -4,14 +4,14 @@
 
 В Book of Travels нет выбора языка: все тексты английские и лежат внутри `resources.assets`, а шрифты интерфейса без кириллицы. Русский добавлен **плагином BepInEx**, который подменяет тексты и подключает шрифт во время работы игры. Ни один файл игры не изменяется.
 
-> **Готовый перевод:** [релиз bookoftravels-ru-v0.1.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.1.0) — архив с установщиком для Linux / Steam Deck (нативная версия игры). Неофициальный, в основном машинный перевод с выборочной вычиткой; рассчитан на Steam buildid 24468107. Windows-версия этим выпуском не поддерживается.
+> **Готовый перевод:** [релиз bookoftravels-ru-v0.2.0](https://github.com/Artemedi/game-localization-guide/releases/tag/bookoftravels-ru-v0.2.0) — архив с установщиками для Windows (`install.bat`) и Linux / Steam Deck (`install.sh`: нативная версия или Windows-версия через Proton). Неофициальный, в основном машинный перевод с выборочной вычиткой; рассчитан на Steam buildid 24468107. В игре проверены нативная Linux-версия и Windows-версия через Proton; Windows без Proton и Steam Deck — нет.
 
 ## 1. Разведка
 
 | Что | Значение | Как установлено |
 |---|---|---|
 | Движок | Unity **2022.3.62f2**, скриптовый рантайм **Mono** (`BookOfTravels_Data/Managed/*.dll`) | версия в `globalgamemanagers`, наличие `Managed/` |
-| Сборка | нативная Linux (`BookOfTravels.x86_64`), Steam appid 1152340, buildid 24468107; запускается в контейнере Steam Linux Runtime (pressure-vessel) | файлы игры, лог параметров запуска |
+| Сборка | нативная Linux (`BookOfTravels.x86_64`), Steam appid 1152340, buildid 24468107; запускается в контейнере Steam Linux Runtime (pressure-vessel). Windows-версия (`BookOfTravels.exe`, тот же buildid): тексты в `resources.assets` и точки перехвата в `Managed/*.dll` совпадают с Linux-версией (сравнение файлов и IL) | файлы игры, лог параметров запуска |
 | Контейнеры | обычные сериализованные файлы Unity (`resources.assets`, `sharedassets*.assets`, `levelN`), без бандлов и Addressables; без typetree | UnityPy |
 | Выбор языка | нет. Поле `chosenLanguage` загрузчика строк нигде не присваивается; кроме `English` других языковых колонок нет | декомпиляция, CSV |
 
@@ -90,6 +90,7 @@ strings DATA/Managed/Years.General.General.Assembly.dll | grep 'Item\[\]'       
 - Staging (`tools/build_staging.sh`): симлинки на файлы игры; настоящие копии — исполняемые файлы, `UnityPlayer.so` и `resources.assets` (Unity выводит путь `*_Data` из пути exe).
 - Параметр запуска Steam: `…/tools/steam-staging-wrapper.sh %command%` — переписывает путь exe на staging, пишет `logs/launch-*.log`. Если в staging есть `run_bepinex.sh`, обёртка запускает его — как у игрока.
 - `tools/observe_run.sh RN` перед запуском: inotify (`watch_open.py`) на каталоги оригинала и staging, копия `Player.log` и `BepInEx/LogOutput.log`, после выхода — sha256 202 ключевых файлов оригинала.
+- Windows-версия через Proton (R22–R23): staging копирует `BookOfTravels.exe`, `UnityPlayer.dll`, `UnityCrashHandler*.exe` и лаунчер; параметр запуска `WINEDLLOVERRIDES="winhttp=n,b" …/steam-staging-wrapper.sh %command%`; `Player.log` — в префиксе Wine `compatdata/1152340/pfx/drive_c/users/steamuser/AppData/LocalLow/MightAndDelight/`; baseline — 369 ключевых файлов.
 - Доказательство прогона: в launch-логе `rewritten_args ≥ 1`; путь Mono в `Player.log` — staging; 0 «Unicode value … not found»; строки плагина («patched …», «translated N rows in '…'»); оригинальный `resources.assets` не открывался; CLOSE_WRITE 0; baseline ALL-OK; скриншот или подтверждение пользователя.
 
 ## 3. Эксперименты
@@ -101,6 +102,7 @@ strings DATA/Managed/Years.General.General.Assembly.dll | grep 'Item\[\]'       
 | R6–R10 | перевод без изменения ассетов: postfix `CSVReader.Read`, звания NPC, полный машинный перевод | **M4**; стихи и подписи префабов не из CSV |
 | R11–R16 | стихи (`NPC.ShowPoem`), подписи префабов, шрифт до первой разметки | **M3** → **M4** |
 | R17–R21 | строки из кода, имена реагентов, типы предметов; архив с установщиком | **M4** |
+| R22–R23 | тот же архив в Windows-версии через Proton (`winhttp.dll`) | **M0** без `WINEDLLOVERRIDES` → **M4** |
 
 Полный журнал прогонов с доказательствами — README репозитория перевода.
 
@@ -108,14 +110,16 @@ strings DATA/Managed/Years.General.General.Assembly.dll | grep 'Item\[\]'       
 - **Не весь текст — в таблицах.** Подписи префабов, вшитые стихи, строки из кода и имена ассетов пришлось ловить отдельно, каждое у своего владельца.
 - **TextMeshPro запоминает пробелы вместо отсутствующих глифов.** Fallback нужно подключать в `Awake` компонента, до первой разметки.
 - **Linux + Steam: `LD_PRELOAD` снаружи контейнера теряется.** Работает штатный `./run_bepinex.sh %command%`.
+- **Proton: без `WINEDLLOVERRIDES="winhttp=n,b"` Wine берёт свой `winhttp.dll`**, и BepInEx не загружается без единой ошибки в логах (R22).
 - **Имена методов — из метаданных, не из декомпилятора** (`_005B_005D` вместо `[]`).
 
 ## 4. Итоговый мод
 
 ```
 Book of Travels/                       (каталог игры в Steam)
-├── run_bepinex.sh                     ← параметр запуска Steam: ./run_bepinex.sh %command%
-├── libdoorstop.so, .doorstop_version  ← UnityDoorstop: загружает BepInEx до кода игры
+├── run_bepinex.sh                     ← Linux: параметр запуска Steam ./run_bepinex.sh %command%
+├── libdoorstop.so, .doorstop_version  ← UnityDoorstop (Linux): загружает BepInEx до кода игры
+├── winhttp.dll, doorstop_config.ini   ← UnityDoorstop (Windows); под Proton: WINEDLLOVERRIDES="winhttp=n,b" %command%
 └── BepInEx/
     ├── core/                          ← BepInEx 5.4.23.5 (HarmonyX, MonoMod, Cecil)
     └── plugins/RuFont/
@@ -158,4 +162,4 @@ Book of Travels/                       (каталог игры в Steam)
 - «Играть без сет…» обрезается в кнопке, «Сбросить положение элементов интерфейса» не помещается.
 - Стоимость реагентов на карточке навыка и сообщение «не хватает реагентов» переведены, но на экране не проверены.
 - `UnityEngine.UI.Text` (старые подписи, в основном отладочные) не перехватывается.
-- Windows-версия и запуск через Proton не проверялись.
+- Windows без Proton и Steam Deck в игре не проверялись; `install.ps1`/`uninstall.ps1` проверены только на тестовых каталогах (PowerShell 7 на Linux).
